@@ -1,4 +1,6 @@
-﻿namespace FilmParser.Model
+﻿using System;
+
+namespace FilmParser.Model
 {
     internal class Film: ISqlConverter
     {
@@ -19,17 +21,22 @@
 
         public string GetTableName()
         {
-            throw new System.NotImplementedException();
-        }
-
-        public string GetVariablesString()
-        {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public string GetValuesString()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public string GetSetString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetIdCondition()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -20,12 +20,17 @@ namespace FilmParser.Model
             throw new NotImplementedException();
         }
 
-        public string GetVariablesString()
+        public string GetValuesString()
         {
             throw new NotImplementedException();
         }
 
-        public string GetValuesString()
+        public string GetSetString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetIdCondition()
         {
             throw new NotImplementedException();
         }

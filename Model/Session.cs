@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FilmParser.Model
 {
@@ -28,12 +24,17 @@ namespace FilmParser.Model
             throw new NotImplementedException();
         }
 
-        public string GetVariablesString()
+        public string GetValuesString()
         {
             throw new NotImplementedException();
         }
 
-        public string GetValuesString()
+        public string GetSetString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetIdCondition()
         {
             throw new NotImplementedException();
         }

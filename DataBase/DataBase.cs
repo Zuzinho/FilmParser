@@ -1,11 +1,12 @@
 ﻿using System.Data.SqlClient;
+using System.Configuration;
 
 namespace FilmParser.DataBase
 {
     internal class DataBase
     {
-        private string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\user\\source\\repos\\FilmParser\\FilmParser\\AppData\\CinemaDB.mdf;Integrated Security=True";
-        protected SqlConnection connection => new SqlConnection(connectionString);
+        private static readonly string _connectionString = ConfigurationManager.ConnectionStrings["CinemaDB"].ConnectionString;
+        protected static SqlConnection Connection => new SqlConnection(_connectionString);
 
         
     }

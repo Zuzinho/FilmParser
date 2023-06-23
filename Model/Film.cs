@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data.SqlClient;
+using System.Runtime.Remoting.Messaging;
 
 namespace FilmParser.Model
 {
@@ -19,24 +21,34 @@ namespace FilmParser.Model
             AvatarPath = avatarPath;
         }
 
+        public Film(SqlDataReader reader)
+        {
+            FilmId = (int)(reader.GetValue(0));
+            Name = reader.GetString(1);
+            Genre = reader.GetString(2);
+            Description = reader.GetString(3);
+            AvatarPath = reader.GetString(4);
+        }
+
         public string GetTableName()
         {
-            throw new NotImplementedException();
+            return "Films";
         }
 
         public string GetValuesString()
         {
-            throw new NotImplementedException();
+            return "(Name, Genre, Description, AvatarPath) VALUES " +
+                $"('{Name}', '{Genre}', '{Description}', '{AvatarPath}')";
         }
 
         public string GetSetString()
         {
-            throw new NotImplementedException();
+            return $"Name = '{Name}', Genre = '{Genre}', Description = '{Description}', AvatarPath = '{AvatarPath}'";
         }
 
         public string GetIdCondition()
         {
-            throw new NotImplementedException();
+            return $"FilmId = {FilmId}";
         }
     }
 }

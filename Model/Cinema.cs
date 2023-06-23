@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 
 namespace FilmParser.Model
 {
@@ -15,24 +16,32 @@ namespace FilmParser.Model
             Address = address;
         }
 
+        public Cinema(SqlDataReader reader)
+        {
+            CinemaId = (int)(reader.GetValue(0));
+            Name = reader.GetString(1);
+            Address = reader.GetString(2);
+        }
+
         public string GetTableName()
         {
-            throw new NotImplementedException();
+            return "Cinemas";
         }
 
         public string GetValuesString()
         {
-            throw new NotImplementedException();
+            return "(Name, Address) VALUES " +
+                $"('{Name}', '{Address}')";
         }
 
         public string GetSetString()
         {
-            throw new NotImplementedException();
+            return $"SET Name = '{Name}', Address = '{Address}'";
         }
 
         public string GetIdCondition()
         {
-            throw new NotImplementedException();
+            return $"CinemaId = {CinemaId}";
         }
     }
 }

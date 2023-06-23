@@ -4,15 +4,15 @@ namespace FilmParser.Model
 {
     internal class Film: ISqlConverter
     {
-        public int Id { get; private set; }
+        public int FilmId { get; private set; }
         public string Name { get; private set; }
         public string Genre { get; private set; }
         public string Description { get; private set; }
         public string AvatarPath { get; private set; }
 
-        public Film(int id, string name, string genre, string description, string avatarPath)
+        public Film(int filmId, string name, string genre, string description, string avatarPath)
         {
-            Id = id;
+            FilmId = filmId;
             Name = name;
             Genre = genre;
             Description = description;

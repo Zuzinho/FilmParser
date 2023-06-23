@@ -4,15 +4,15 @@ namespace FilmParser.Model
 {
     internal class Session: ISqlConverter
     {
-        public int Id { get; private set; }
+        public int SessionId { get; private set; }
         public int CinemaId { get; private set; }
         public int FilmId { get; private set; }
         public DateTime StartTime { get; private set; }
         public int Price { get; private set; }
 
-        public Session(int id, int cinemaId, int filmId, DateTime startTime, int price)
+        public Session(int sessionId, int cinemaId, int filmId, DateTime startTime, int price)
         {
-            Id = id;
+            SessionId = sessionId;
             CinemaId = cinemaId;
             FilmId = filmId;
             StartTime = startTime;

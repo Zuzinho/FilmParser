@@ -4,13 +4,13 @@ namespace FilmParser.Model
 {
     internal class Cinema: ISqlConverter
     {
-        public int Id { get; private set; }
+        public int CinemaId { get; private set; }
         public string Name { get; private set; }
         public string Address { get; private set; }
 
-        public Cinema(int id, string name, string address)
+        public Cinema(int cinemaId, string name, string address)
         {
-            Id = id;
+            CinemaId = cinemaId;
             Name = name;
             Address = address;
         }

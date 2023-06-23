@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace FilmParser.Model
+﻿namespace FilmParser.Model
 {
     internal interface ISqlConverter
     {

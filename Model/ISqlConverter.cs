@@ -2,9 +2,7 @@
 {
     internal interface ISqlConverter
     {
-        string GetTableName();
         string GetValuesString();
         string GetSetString();
-        string GetIdCondition();
     }
 }

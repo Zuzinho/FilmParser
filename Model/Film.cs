@@ -28,11 +28,6 @@ namespace FilmParser.Model
             AvatarPath = reader.GetString(4);
         }
 
-        public string GetTableName()
-        {
-            return "Films";
-        }
-
         public string GetValuesString()
         {
             return "(Name, Genre, Description, AvatarPath) VALUES " +
@@ -42,11 +37,6 @@ namespace FilmParser.Model
         public string GetSetString()
         {
             return $"Name = '{Name}', Genre = '{Genre}', Description = '{Description}', AvatarPath = '{AvatarPath}'";
-        }
-
-        public string GetIdCondition()
-        {
-            return $"FilmId = {FilmId}";
         }
     }
 }

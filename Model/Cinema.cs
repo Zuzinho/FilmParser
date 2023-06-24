@@ -23,10 +23,6 @@ namespace FilmParser.Model
             Address = reader.GetString(2);
         }
 
-        public string GetTableName()
-        {
-            return "Cinemas";
-        }
 
         public string GetValuesString()
         {
@@ -37,11 +33,6 @@ namespace FilmParser.Model
         public string GetSetString()
         {
             return $"SET Name = '{Name}', Address = '{Address}'";
-        }
-
-        public string GetIdCondition()
-        {
-            return $"CinemaId = {CinemaId}";
         }
     }
 }

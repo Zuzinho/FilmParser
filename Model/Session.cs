@@ -29,11 +29,6 @@ namespace FilmParser.Model
             Price = (int)(reader.GetValue(4));
         }
 
-        public string GetTableName()
-        {
-            return "Sessions";
-        }
-
         public string GetValuesString()
         {
             return "(CinemaId, FilmId, StartTime, Price) VALUES " +
@@ -43,11 +38,6 @@ namespace FilmParser.Model
         public string GetSetString()
         {
             return $"SET CinemaId = {CinemaId}, FilmId = {FilmId}, StartTime = '{StartTime}', Price = {Price}";
-        }
-
-        public string GetIdCondition()
-        {
-            return $"SessionId = {SessionId}";
         }
     }
 }

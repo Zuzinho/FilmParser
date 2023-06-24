@@ -5,7 +5,7 @@ namespace FilmParser.Model
 {
     internal static class ModelFactory
     {
-        public static ISqlConverter GetModelObject<T>(SqlDataReader reader)
+        public static ISqlConverter GetModelObject<T>(SqlDataReader reader) where T : ISqlConverter
         {
             Type type = typeof(T);
             if (type == typeof(Cinema)) return new Cinema(reader);

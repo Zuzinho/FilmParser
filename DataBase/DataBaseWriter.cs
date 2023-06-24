@@ -5,16 +5,17 @@ namespace FilmParser.DataBase
 {
     internal class DataBaseWriter : DataBase
     {
-        public static void InsertData(ISqlConverter modelObject)
+        public static void InsertData<T>(T modelObject) where T : ISqlConverter
         {
-            string sqlString = $"INSERT INTO {modelObject.GetTableName()} {modelObject.GetValuesString()}";
+            string sqlString = $"INSERT INTO {ModelIdentifier.GetTableName<T>()} {modelObject.GetValuesString()}";
 
             ExecuteNonQuery(sqlString);
         }
 
-        public static void UpdateData(ISqlConverter modelObject)
+        public static void UpdateData<T>(T modelObject) where T : ISqlConverter
         {
-            string sqlString = $"UPDATE {modelObject.GetTableName()} {modelObject.GetSetString()} WHERE {modelObject.GetIdCondition()}";
+            string sqlString = $"UPDATE {ModelIdentifier.GetTableName<T>()} {modelObject.GetSetString()} " +
+                $"WHERE {ModelIdentifier.GetIdName<T>()}";
 
             ExecuteNonQuery(sqlString);
         }
@@ -22,8 +23,7 @@ namespace FilmParser.DataBase
 
         private static void ExecuteNonQuery(string sqlString)
         {
-            using (Connection)
-            {
+            using (Connection) {
                 Connection.Open();
                 SqlCommand sqlCommand = new SqlCommand(sqlString, Connection);
                 sqlCommand.ExecuteNonQuery();

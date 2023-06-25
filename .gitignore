@@ -2,3 +2,4 @@ AppData/
 bin/
 obj/
 App.config
+FilmParser.csproj*

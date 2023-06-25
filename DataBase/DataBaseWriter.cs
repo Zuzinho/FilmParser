@@ -1,27 +1,27 @@
 ﻿using FilmParser.Model;
 using System.Data.SqlClient;
-using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace FilmParser.DataBase
 {
     internal class DataBaseWriter : DataBase
     {
-        public static void InsertData<T>(T modelObject) where T : ISqlConverter
+        public async static Task InsertDataAsync<T>(T modelObject) where T : ISqlConverter
         {
             string sqlString = $"INSERT INTO {ModelIdentifier.GetTableName<T>()} {modelObject.GetValuesString()}";
 
-            ExecuteNonQuery(sqlString);
+            await ExecuteNonQueryAsync(sqlString);
         }
 
-        public static void UpdateData<T>(T modelObject) where T : ISqlConverter
+        public async static Task UpdateDataAsync<T>(T modelObject) where T : ISqlConverter
         {
             string sqlString = $"UPDATE {ModelIdentifier.GetTableName<T>()} {modelObject.GetSetString()} " +
                 $"WHERE Id = {modelObject.Id}";
 
-            ExecuteNonQuery(sqlString);
+            await ExecuteNonQueryAsync(sqlString);
         }
 
-        public static void DeleteData<T>(T modelObject) where T : ISqlConverter
+        public async static void DeleteDataAsync<T>(T modelObject) where T : ISqlConverter
         {
             string sqlString = $"DELETE FROM {ModelIdentifier.GetTableName<T>()} " +
                 $"WHERE Id = {modelObject.Id}";
@@ -29,22 +29,22 @@ namespace FilmParser.DataBase
             if (typeof(T) == typeof(Cinema)) DeleteSessions($"CinemaId = {modelObject.Id}");
             else if (typeof(T) == typeof(Film)) DeleteSessions($"FilmId = {modelObject.Id}");
 
-            ExecuteNonQuery(sqlString);
+            await ExecuteNonQueryAsync(sqlString);
         }
 
-        public static void DeleteSessions(string condition)
+        public async static void DeleteSessionsAsync(string condition)
         {
             string sqlString = $"DELETE FROM Sessions WHERE {condition}";
 
-            ExecuteNonQuery(sqlString);
+            await ExecuteNonQueryAsync(sqlString);
         }
 
 
-        private static void ExecuteNonQuery(string sqlString)
+        private async static Task ExecuteNonQueryAsync(string sqlString)
         {
             Connection.Open();
             SqlCommand sqlCommand = new SqlCommand(sqlString, Connection);
-            sqlCommand.ExecuteNonQuery();
+            await sqlCommand.ExecuteNonQueryAsync();
             Connection.Close();
         }
     }

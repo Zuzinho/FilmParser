@@ -11,7 +11,7 @@ namespace FilmParser.Model
             if (type == typeof(Film)) return "Films";
             if (type == typeof(Session)) return "Sessions";
 
-            return string.Empty;
+            return null;
         }
 
         public static string GetIdName<T>() where T : ISqlConverter
@@ -21,7 +21,7 @@ namespace FilmParser.Model
             if (type == typeof(Film)) return "FilmId";
             if (type == typeof(Session)) return "SessionId";
 
-            return string.Empty;
+            return null;
         }
     }
 }

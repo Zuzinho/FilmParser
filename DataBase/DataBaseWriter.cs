@@ -23,19 +23,18 @@ namespace FilmParser.DataBase
 
         public static void DeleteData<T>(T modelObject) where T : ISqlConverter
         {
-            string sqlString = $"DELETE FROM {ModelIdentifier.GetTableName<T>()}" +
+            string sqlString = $"DELETE FROM {ModelIdentifier.GetTableName<T>()} " +
                 $"WHERE Id = {modelObject.Id}";
 
-            ExecuteNonQuery(sqlString);
+            if (typeof(T) == typeof(Cinema)) DeleteSessions($"CinemaId = {modelObject.Id}");
+            else if (typeof(T) == typeof(Film)) DeleteSessions($"FilmId = {modelObject.Id}");
 
-            if (typeof(T) == typeof(Cinema)) DeleteSessions<T>($"CinemaId = {modelObject.Id}");
-            else if (typeof(T) == typeof(Film)) DeleteSessions<T>($"FilmId = {modelObject.Id}");
+            ExecuteNonQuery(sqlString);
         }
 
-        public static void DeleteSessions<T>(string condition) where T : ISqlConverter
+        public static void DeleteSessions(string condition)
         {
-            string sqlString = $"DELETE FROM {ModelIdentifier.GetTableName<T>()} " +
-                $"WHERE {condition}";
+            string sqlString = $"DELETE FROM Sessions WHERE {condition}";
 
             ExecuteNonQuery(sqlString);
         }

@@ -68,6 +68,7 @@
     <Compile Include="Model\Film.cs" />
     <Compile Include="Model\ISqlConverter.cs" />
     <Compile Include="Model\ModelFactory.cs" />
+    <Compile Include="Model\ModelIdentifier.cs" />
     <Compile Include="Model\Session.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

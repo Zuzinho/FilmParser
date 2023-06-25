@@ -1,5 +1,6 @@
 ﻿using FilmParser.Model;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 
 namespace FilmParser.DataBase
 {
@@ -15,7 +16,7 @@ namespace FilmParser.DataBase
         public static void UpdateData<T>(T modelObject) where T : ISqlConverter
         {
             string sqlString = $"UPDATE {ModelIdentifier.GetTableName<T>()} {modelObject.GetSetString()} " +
-                $"WHERE {ModelIdentifier.GetIdName<T>()}";
+                $"WHERE Id = {modelObject.Id}";
 
             ExecuteNonQuery(sqlString);
         }
@@ -23,11 +24,10 @@ namespace FilmParser.DataBase
 
         private static void ExecuteNonQuery(string sqlString)
         {
-            using (Connection) {
-                Connection.Open();
-                SqlCommand sqlCommand = new SqlCommand(sqlString, Connection);
-                sqlCommand.ExecuteNonQuery();
-            }
+            Connection.Open();
+            SqlCommand sqlCommand = new SqlCommand(sqlString, Connection);
+            sqlCommand.ExecuteNonQuery();
+            Connection.Close();
         }
     }
 }

@@ -6,37 +6,43 @@ namespace FilmParser.DataBase
 {
     internal class DataBaseReader: DataBase
     {
-        public static ISqlConverter Select<T>(int id) where T : ISqlConverter
+        public static T Select<T>(int id) where T : ISqlConverter
         {
             string sqlString = $"SELECT * FROM {ModelIdentifier.GetTableName<T>()} " +
-                $"WHERE {ModelIdentifier.GetIdName<T>()} = {id}";
+                $"WHERE Id = {id}";
+            T modelObject = default;
+
             var reader = GetReader(sqlString);
 
-            if(reader.Read()) return ModelFactory.GetModelObject<T>(reader);
-            return null;
+            if(reader.Read()) modelObject = (T)(ModelFactory.GetModelObject<T>(reader));
+
+            Connection.Close();
+
+            return modelObject;
         }
 
-        public static List<ISqlConverter> Select<T>(string conditions = "") where T : ISqlConverter
+        public static List<T> Select<T>(string conditions = "") where T : ISqlConverter
         {
             if (!conditions.Equals("")) conditions = "WHERE " + conditions;
             string sqlString = $"SELECT * FROM {ModelIdentifier.GetTableName<T>()} {conditions}";
+            List<T> modelObjects = new List<T>();
+
             var reader = GetReader(sqlString);
 
-            List<ISqlConverter> modelObject = new List<ISqlConverter>();
+            while (reader.Read()) modelObjects.Add((T)(ModelFactory.GetModelObject<T>(reader)));
 
-            while (reader.Read()) modelObject.Add(ModelFactory.GetModelObject<T>(reader));
+            Connection.Close();
 
-            return modelObject;
+            return modelObjects;
         }
 
 
         private static SqlDataReader GetReader(string sqlString)
         {
-            using (Connection) {
-                Connection.Open();
-                SqlCommand sqlCommand = new SqlCommand(sqlString, Connection);
-                return sqlCommand.ExecuteReader();
-            }
+            Connection.Open();
+            SqlCommand sqlCommand = new SqlCommand(sqlString, Connection);
+            var reader = sqlCommand.ExecuteReader();
+            return reader;
         }
     }
 }

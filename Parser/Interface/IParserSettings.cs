@@ -2,8 +2,9 @@
 {
     internal interface IParserSettings
     {
-        string Url { get; set; }
-        string CinemaPrefix { get; set; }
-        string FilmPrefix { get; set; }
+        string BaseUrl { get; }
+        string CinemasPrefixPattern { get; }
+        string FilmsPrefixPattern { get; }
+        string SessionsPrefixPattern { get; }
     }
 }

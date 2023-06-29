@@ -1,44 +1,93 @@
-﻿using FilmParser.Model;
+﻿using AngleSharp.Html;
+using FilmParser.Model;
+using System;
+using System.Data.Common;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using System.Diagnostics;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FilmParser.DataBase
 {
     internal class DataBaseWriter : DataBase
     {
-        public async static Task InsertDataAsync<T>(T modelObject) where T : ISqlConverter
+        public async static Task<int> InsertCinemaAsync(string name, string address = "")
         {
-            string sqlString = $"INSERT INTO {ModelIdentifier.GetTableName<T>()} {modelObject.GetValuesString()}";
+            string tableName = TableNamesPairs[typeof(Cinema)];
+            string sqlString = $"INSERT INTO {tableName} (Name, Address) VALUES " +
+                $"('{name}', '{address}')";
+
+            return await InsertAsync(sqlString, tableName);
+        }
+
+        public async static Task<int> InsertFilmAsync(string name, string genre, string description, string avatarPath = "")
+        {
+            string tableName = TableNamesPairs[typeof(Film)];
+            string sqlString = $"INSERT INTO {tableName} (Name, Genre, Description, AvatarPath) VALUES " +
+                $"('{name}', '{genre}', '{description}', '{avatarPath}')";
+
+            return await InsertAsync(sqlString, tableName);
+        }
+
+        public async static Task<int> InsertSessionAsync(int cinemaId, int filmId, DateTime startTime, int price)
+        {
+            string tableName = TableNamesPairs[typeof(Session)];
+            string sqlString = $"INSERT INTO {tableName} (CinemaId, FilmId, StartTime, Price) VALUES " +
+                $"({cinemaId}, {filmId}, '{startTime:yyyy-MM-dd HH:mm:ss}', '{price}')";
+
+            return await InsertAsync(sqlString, tableName);
+        }
+
+        public async static Task UpdateCinemaAsync(int cinemaId, string name, string address = "")
+        {
+            string tableName = TableNamesPairs[typeof(Cinema)];
+            string sqlString = $"UPDATE {tableName} SET " +
+                $"Name = '{name}' ," +
+                $"Address = '{address}' " +
+                $"WHERE Id = {cinemaId}";
+
+            try
+            {
+                await ExecuteNonQueryAsync(sqlString);
+            }
+            catch {}
+        }
+
+        public async static Task DeleteTAsync<T>(int id) where T : ISqlConverter
+        {
+            string tableName = TableNamesPairs[typeof(T)];
+            string sqlString = $"DELETE FROM {tableName} WHERE Id = {id}";
+
+            try
+            {
+                await ExecuteNonQueryAsync(sqlString);
+            }
+            catch {}
+        }
+
+        private static async Task<int> InsertAsync(string sqlString, string tableName)
+        {
+            try
+            {
+                await ExecuteNonQueryAsync(sqlString);
+                int newId = await DataBaseReader.GetNewIdAsync(tableName);
+                await IncrementId(tableName, newId);
+                return newId;
+            }
+            catch (DbException)
+            {
+                return -1;
+            }
+        }
+
+        private static async Task IncrementId(string tableName, int lastId)
+        {
+            string sqlString = $"UPDATE {TableNamesPairs[typeof(int)]} SET NewId = {lastId + 1} WHERE TableName = '{tableName}'";
 
             await ExecuteNonQueryAsync(sqlString);
         }
-
-        public async static Task UpdateDataAsync<T>(T modelObject) where T : ISqlConverter
-        {
-            string sqlString = $"UPDATE {ModelIdentifier.GetTableName<T>()} {modelObject.GetSetString()} " +
-                $"WHERE Id = {modelObject.Id}";
-
-            await ExecuteNonQueryAsync(sqlString);
-        }
-
-        public async static void DeleteDataAsync<T>(T modelObject) where T : ISqlConverter
-        {
-            string sqlString = $"DELETE FROM {ModelIdentifier.GetTableName<T>()} " +
-                $"WHERE Id = {modelObject.Id}";
-
-            if (typeof(T) == typeof(Cinema)) DeleteSessions($"CinemaId = {modelObject.Id}");
-            else if (typeof(T) == typeof(Film)) DeleteSessions($"FilmId = {modelObject.Id}");
-
-            await ExecuteNonQueryAsync(sqlString);
-        }
-
-        public async static void DeleteSessionsAsync(string condition)
-        {
-            string sqlString = $"DELETE FROM Sessions WHERE {condition}";
-
-            await ExecuteNonQueryAsync(sqlString);
-        }
-
 
         private async static Task ExecuteNonQueryAsync(string sqlString)
         {

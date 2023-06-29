@@ -1,12 +1,7 @@
-﻿using AngleSharp.Html;
-using FilmParser.Model;
+﻿using FilmParser.Model;
 using System;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Data.SqlTypes;
-using System.Diagnostics;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FilmParser.DataBase

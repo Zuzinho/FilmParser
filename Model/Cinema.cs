@@ -15,7 +15,7 @@ namespace FilmParser.Model
         public string Address { get; private set; }
 
 
-        public Cinema(int cinemaId, string name, string address)
+        public Cinema(int cinemaId, string name, string address = "")
         {
             _id = cinemaId;
             Name = name;

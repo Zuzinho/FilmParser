@@ -13,7 +13,7 @@ namespace FilmParser.Model
         public string AvatarPath { get; private set; }
 
 
-        public Film(int filmId, string name, string genre, string description, string avatarPath)
+        public Film(int filmId, string name, string genre, string description, string avatarPath = "")
         {
             _id = filmId;
             Name = name;

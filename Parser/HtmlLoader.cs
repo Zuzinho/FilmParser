@@ -27,34 +27,34 @@ namespace FilmParser.Parser
             return await GetHtmlDocumentAsync(url);
         }
 
-        public async Task<IHtmlDocument> GetFilmsSourceAsync(int cinemaId)
+        public async Task<IHtmlDocument> GetFilmsSourceAsync(string cinemaId)
         {
             string url = $"{_parserSettings.BaseUrl}" +
-                $"{_parserSettings.FilmsUrlPattern.Replace("{cinemaId}", cinemaId.ToString())}";
+                $"{_parserSettings.FilmsUrlPattern.Replace("{cinemaId}", cinemaId)}";
 
             return await GetHtmlDocumentAsync(url);
         }
 
-        public async Task<IHtmlDocument> GetSessionsSourceAsync(int cinemaId, int filmId)
+        public async Task<IHtmlDocument> GetSessionsSourceAsync(string cinemaId, string filmId)
         {
             string url = $"{_parserSettings.BaseUrl}" +
-                $"{_parserSettings.SessionsUrlPattern.Replace("{cinemaId}", cinemaId.ToString()).Replace("{filmId}", filmId.ToString())}";
+                $"{_parserSettings.SessionsUrlPattern.Replace("{cinemaId}", cinemaId).Replace("{filmId}", filmId)}";
 
             return await GetHtmlDocumentAsync(url);
         }
 
-        public async Task<IHtmlDocument> GetCinemaSourceAsync(int cinemaId)
+        public async Task<IHtmlDocument> GetCinemaSourceAsync(string cinemaId)
         {
             string url = $"{_parserSettings.BaseUrl}" +
-                $"{_parserSettings.CinemaUrlPattern.Replace("{cinemaId}", cinemaId.ToString())}";
+                $"{_parserSettings.CinemaUrlPattern.Replace("{cinemaId}", cinemaId)}";
         
             return await GetHtmlDocumentAsync(url);
         }
 
-        public async Task<IHtmlDocument> GetFilmSourceAsync(int filmId)
+        public async Task<IHtmlDocument> GetFilmSourceAsync(string filmId)
         {
             string url = $"{_parserSettings.BaseUrl}" +
-                $"{_parserSettings.FilmUrlPattern.Replace("{filmId}", filmId.ToString())}";
+                $"{_parserSettings.FilmUrlPattern.Replace("{filmId}", filmId)}";
 
             return await GetHtmlDocumentAsync(url);
         }

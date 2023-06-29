@@ -12,7 +12,7 @@ namespace FilmParser.DataBase
         {
             string tableName = TableNamesPairs[typeof(Cinema)];
             string sqlString = $"INSERT INTO {tableName} (Name, Address) VALUES " +
-                $"('{name}', '{address}')";
+                $"(N'{name}', N'{address}')";
 
             return await InsertAsync(sqlString, tableName);
         }
@@ -21,7 +21,7 @@ namespace FilmParser.DataBase
         {
             string tableName = TableNamesPairs[typeof(Film)];
             string sqlString = $"INSERT INTO {tableName} (Name, Genre, Description, AvatarPath) VALUES " +
-                $"('{name}', '{genre}', '{description}', '{avatarPath}')";
+                $"(N'{name}', N'{genre}', N'{description}', N'{avatarPath}')";
 
             return await InsertAsync(sqlString, tableName);
         }
@@ -30,7 +30,7 @@ namespace FilmParser.DataBase
         {
             string tableName = TableNamesPairs[typeof(Session)];
             string sqlString = $"INSERT INTO {tableName} (CinemaId, FilmId, StartTime, Price) VALUES " +
-                $"({cinemaId}, {filmId}, '{startTime:yyyy-MM-dd HH:mm:ss}', '{price}')";
+                $"({cinemaId}, {filmId}, '{startTime:yyyy-MM-dd HH:mm:ss}', {price})";
 
             return await InsertAsync(sqlString, tableName);
         }
@@ -39,8 +39,8 @@ namespace FilmParser.DataBase
         {
             string tableName = TableNamesPairs[typeof(Cinema)];
             string sqlString = $"UPDATE {tableName} SET " +
-                $"Name = '{name}' ," +
-                $"Address = '{address}' " +
+                $"Name = N'{name}' ," +
+                $"Address = N'{address}' " +
                 $"WHERE Id = {cinemaId}";
 
             try

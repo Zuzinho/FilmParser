@@ -1,7 +1,4 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
+﻿using System.Data.SqlClient;
 
 namespace FilmParser.Model
 {
@@ -24,7 +21,7 @@ namespace FilmParser.Model
 
         public Cinema(SqlDataReader reader)
         {
-            _id = (int)(reader.GetValue(0));
+            _id = (int)reader.GetValue(0);
             Name = reader.GetString(1);
             Address = reader.GetString(2);
         }

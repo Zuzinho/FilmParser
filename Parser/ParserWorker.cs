@@ -11,24 +11,14 @@ namespace FilmParser.Parser
         public void Work(IParser parser)
         {
             Parallel.ForEach(
-                parser.ParseCinemas(),
-                async cinema =>
+                parser.ParseCinemasAsync(),
+                cinemaId =>
                 {
-                    await DataBaseWriter.InsertDataAsync(cinema);
-                    List<Film> films = await parser.ParseFilms(cinema.Id);
                     Parallel.ForEach(
-                        films,
-                        async film =>
+                        parser.ParseFilms(cinemaId),
+                        filmId =>
                         {
-                            await DataBaseWriter.InsertDataAsync(film);
-                            List<Session> sessions = await parser.ParseSessions(cinema.Id, film.Id);
-                            Parallel.ForEach(
-                                sessions,
-                                async session =>
-                                {
-                                    await DataBaseWriter.InsertDataAsync(session);
-                                }
-                            );
+                            parser.ParseSessions(cinemaId, filmId);
                         }
                     );
                 }

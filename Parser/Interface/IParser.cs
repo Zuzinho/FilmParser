@@ -7,11 +7,11 @@ namespace FilmParser.Parser.Interface
 {
     internal interface IParser
     {
-        IParserSettings parserSettings { get; }
+        IParserSettings ParserSettings { get; }
         HtmlLoader HtmlLoader { get; }
 
-        Task<List<int>> ParseCinemas();
-        Task<List<int>> ParseFilms(int cinemaId);
-        Task<List<int>> ParseSessions(int cinemaId, int filmId);
+        Task<ICollection<int>> ParseCinemasAsync();
+        Task<ICollection<int>> ParseFilmsAsync(int cinemaId);
+        Task<ICollection<int>> ParseSessionsAsync(int cinemaId, int filmId);
     }
 }

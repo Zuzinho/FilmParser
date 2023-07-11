@@ -2,6 +2,8 @@
 {
     internal interface IParserSettings
     {
+        string SiteName { get; }
+        int SiteId { get; }
         string BaseUrl { get; }
         string CinemaUrlPattern { get; }
         string FilmUrlPattern { get; }

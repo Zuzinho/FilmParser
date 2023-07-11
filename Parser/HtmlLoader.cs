@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AngleSharp.Html.Parser;
 using AngleSharp.Html.Dom;
+using System.Net;
 
 namespace FilmParser.Parser
 {
@@ -61,13 +62,25 @@ namespace FilmParser.Parser
 
         private async Task<IHtmlDocument> GetHtmlDocumentAsync(string url)
         {
-            var response = await _client.GetAsync(url);
+            HttpResponseMessage response;
+            try
+            {
+                response = await _client.GetAsync(url);
+            }
+            catch (HttpRequestException)
+            {
+                response = await _client.GetAsync(url);
+            }
+            catch (WebException)
+            {
+                return null;
+            }
 
-            if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
+            if (response != null && response.StatusCode == HttpStatusCode.OK)
             {
                 string source = await response.Content.ReadAsStringAsync();
 
-                return await _htmlParser.ParseDocumentAsync(source);
+                return _htmlParser.ParseDocumentAsync(source).Result;
             }
 
             return null;

@@ -1,28 +1,28 @@
-﻿using FilmParser.DataBase;
-using FilmParser.Model;
+﻿using FilmParser.Database;
 using FilmParser.Parser.Interface;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FilmParser.Parser
 {
     internal class ParserWorker
     {
-        public void Work(IParser parser)
+        public static void Work(IParser parser)
         {
+            DataBase.OpenConnection();
             Parallel.ForEach(
-                parser.ParseCinemasAsync(),
+                parser.ParseCinemasAsync().Result,
                 cinemaId =>
                 {
                     Parallel.ForEach(
-                        parser.ParseFilms(cinemaId),
+                        parser.ParseFilmsAsync(cinemaId).Result,
                         filmId =>
                         {
-                            parser.ParseSessions(cinemaId, filmId);
+                            _ = parser.ParseSessionsAsync(cinemaId, filmId).Result;
                         }
                     );
                 }
             );
+            DataBase.CloseConnection();
         }
     }
 }

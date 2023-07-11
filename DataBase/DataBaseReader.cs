@@ -1,9 +1,10 @@
 ﻿using FilmParser.Model;
+using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace FilmParser.DataBase
+namespace FilmParser.Database
 {
     internal class DataBaseReader: DataBase
     {
@@ -11,15 +12,11 @@ namespace FilmParser.DataBase
         {
             string sqlString = $"SELECT * FROM {TableNamesPairs[typeof(T)]} " +
                 $"WHERE Id = {id}";
-            T modelObject = default;
 
-            var reader = await GetReaderAsync(sqlString);
-
-            if(reader.Read()) modelObject = (T)ModelFactory.GetModelObject<T>(reader);
-
-            Connection.Close();
-
-            return modelObject;
+            using (var reader = await GetReaderAsync(sqlString))
+            {
+                return await reader.ReadAsync() ? (T)ModelFactory.GetModelObject<T>(reader) : default;
+            }
         }
 
         public async static Task<List<T>> SelectAsync<T>(string conditions = "") where T : ISqlConverter
@@ -28,29 +25,39 @@ namespace FilmParser.DataBase
             string sqlString = $"SELECT * FROM {TableNamesPairs[typeof(T)]} {conditions}";
             List<T> modelObjects = new List<T>();
 
-            var reader = await GetReaderAsync(sqlString);
-
-            while (reader.Read()) modelObjects.Add((T)ModelFactory.GetModelObject<T>(reader));
-
-            Connection.Close();
-
+            using (var reader = await GetReaderAsync(sqlString))
+            {
+                while (reader.Read()) modelObjects.Add((T)ModelFactory.GetModelObject<T>(reader));
+            }
             return modelObjects;
         }
 
-        internal static async Task<int> GetNewIdAsync(string tableName)
+        public async static Task<string> GetSiteLinkAsync(string siteName)
         {
-            string sqlString = $"SELECT NewId FROM {TableNamesPairs[typeof(int)]} WHERE TableName = '{tableName}'";
-
-            var reader = await GetReaderAsync(sqlString);
-
-            return await reader.ReadAsync() ? reader.GetInt32(0) : -1;
+            string sqlString = $"SELECT Link FROM Sites WHERE Name = N'{siteName}'";
+            return await GetStringValueAsync(sqlString);
         }
 
-        private async static Task<SqlDataReader> GetReaderAsync(string sqlString)
+        public async static Task<int> GetSiteIdAsync(string siteName)
         {
-            Connection.Open();
-            SqlCommand sqlCommand = new SqlCommand(sqlString, Connection);
-            return await sqlCommand.ExecuteReaderAsync();
+            string sqlString = $"SELECT Id FROM Sites WHERE Name = N'{siteName}'";
+            return await GetIntValueAsync(sqlString);
+        }
+
+        public async static Task<string> GetCinemaUIdAsync(int cinemaId, int siteId)
+        {
+            string sqlString = "SELECT CinemaUId FROM CinemasUId WHERE " +
+                $"CinemaId = {cinemaId} AND SiteId = {siteId}";
+
+            return await GetStringValueAsync(sqlString);
+        }
+
+        public async static Task<string> GetFilmUIdAsync(int filmId, int siteId)
+        {
+            string sqlString = "SELECT FilmUId FROM FilmsUId WHERE " +
+                $"FilmId = {filmId} AND SiteId = {siteId}";
+
+            return await GetStringValueAsync(sqlString);
         }
     }
 }

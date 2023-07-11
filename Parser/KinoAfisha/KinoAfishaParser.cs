@@ -8,7 +8,8 @@ using FilmParser.Database;
 using System.Text.Json;
 using AngleSharp.Dom;
 using System.Text.RegularExpressions;
-using System.Collections.ObjectModel;
+using System.Reflection.Emit;
+using System.Globalization;
 
 namespace FilmParser.Parser.KinoAfisha
 {
@@ -89,9 +90,8 @@ namespace FilmParser.Parser.KinoAfisha
 
             foreach (var session in sessions)
             {
-                string[] time = session.GetElementsByClassName("session_time")[0].TextContent.Split(':');
-                DateTime startTime = DateTime.Today.AddHours(Convert.ToDouble(time[0])).AddMinutes(Convert.ToDouble(time[1]));
-
+                string time = session.GetElementsByClassName("session_time")[0].TextContent;
+                DateTime startTime = DateTime.Today.Add(TimeSpan.ParseExact(time, "hh:mm", null));
                 string priceString = session.GetElementsByClassName("session_price")[0].TextContent;
                 Regex regex = new Regex("\\d+");
                 string priceValue = regex.Match(priceString).Value;

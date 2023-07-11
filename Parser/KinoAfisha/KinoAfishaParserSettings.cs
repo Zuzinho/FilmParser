@@ -1,10 +1,13 @@
-﻿using FilmParser.Parser.Interface;
+﻿using FilmParser.Database;
+using FilmParser.Parser.Interface;
 
 namespace FilmParser.Parser.KinoAfisha
 {
     internal class KinoAfishaParserSettings : IParserSettings
     {
-        public string BaseUrl => "https://www.kinoafisha.info/";
+        public string SiteName => "KinoAfisha";
+        public int SiteId => DataBaseReader.GetSiteIdAsync(SiteName).Result;
+        public string BaseUrl => DataBaseReader.GetSiteLinkAsync(SiteName).Result;
 
         public string CinemasUrlPattern => "cinema/";
 

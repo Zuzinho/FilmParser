@@ -1,81 +1,129 @@
-﻿using FilmParser.Model;
-using FilmParser.Parser.Interface;
+﻿using FilmParser.Parser.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AngleSharp.Html.Dom;
-using FilmParser.DataBase;
+using FilmParser.Database;
 using System.Text.Json;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using AngleSharp.Dom;
-using System.IO;
+using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 
 namespace FilmParser.Parser.KinoAfisha
 {
     internal class KinoAfishaParser : IParser
     {
-        public IParserSettings parserSettings => new KinoAfishaParserSettings();
+        public IParserSettings ParserSettings => new KinoAfishaParserSettings();
 
-        public HtmlLoader HtmlLoader => new HtmlLoader(parserSettings);
+        public HtmlLoader HtmlLoader => new HtmlLoader(ParserSettings);
 
-        private Dictionary<int, string> _cinemaIdPairs = new Dictionary<int, string>();
-        private Dictionary<int, string> _filmIdPairs = new Dictionary<int, string>();
-
-        public async Task<List<int>> ParseCinemas()
+        public async Task<ICollection<int>> ParseCinemasAsync()
         {
-            IHtmlDocument cinemasPage = HtmlLoader.GetCinemasSourceAsync().Result;
+            IHtmlDocument cinemasPage = await HtmlLoader.GetCinemasSourceAsync();
+            if (cinemasPage == null) return new List<int>();
+            HashSet<int> cinemaIds = new HashSet<int>();
 
+            int count = 0;
             var dataParams = cinemasPage.GetElementsByClassName("cinemaList_item").Attr("data-param");
             foreach(var dataParam in dataParams)
             {
-                string uidCinema = JsonSerializer.Deserialize<DataParam>(dataParam).uid;
+                string uidCinema = JsonSerializer.Deserialize<DataParamCinema>(dataParam).uid;
 
-                IHtmlDocument cinemaPage = HtmlLoader.GetCinemaSourceAsync(uidCinema).Result;
+                IHtmlDocument cinemaPage = await HtmlLoader.GetCinemaSourceAsync(uidCinema);
                 string name = cinemaPage.GetElementsByTagName("h1")[0].TextContent.Trim();
                 string address = cinemaPage.GetElementsByClassName("theaterInfo_dataAddr")[0].TextContent.Trim();
 
                 int cinemaId = await DataBaseWriter.InsertCinemaAsync(name, address);
-                _cinemaIdPairs.Add(cinemaId, uidCinema);
+                if (cinemaId == -1) continue;
+                await DataBaseWriter.InsertCinemaUIdAsync(cinemaId, ParserSettings.SiteId, uidCinema);
+                if (cinemaIds.Add(cinemaId)) count++;
+                if (count == 10) break;
             }
 
-            return _cinemaIdPairs.Keys.ToList();
+            return cinemaIds;
         }
 
-        public async Task<List<int>> ParseFilms(int cinemaId)
+        public async Task<ICollection<int>> ParseFilmsAsync(int cinemaId)
         {
-            string uidCinema = _cinemaIdPairs[cinemaId];
-            IHtmlDocument filmsPage = HtmlLoader.GetFilmsSourceAsync(uidCinema).Result;
+            string uidCinema = await DataBaseReader.GetCinemaUIdAsync(cinemaId, ParserSettings.SiteId);
+            IHtmlDocument filmsPage = await HtmlLoader.GetFilmsSourceAsync(uidCinema);
+            if (filmsPage == null) return new List<int>();
+            HashSet<int> filmIds = new HashSet<int>();
 
             var dataParams = filmsPage.GetElementsByClassName("showtimes_fav").Attr("data-param");
             foreach(var dataParam in dataParams)
             {
-                string uidFilm = JsonSerializer.Deserialize<DataParam>(dataParam).uid;
+                string uidFilm = JsonSerializer.Deserialize<DataParamFilm>(dataParam).uid.ToString();
 
-                IHtmlDocument filmPage = HtmlLoader.GetFilmSourceAsync(uidFilm).Result;
+                IHtmlDocument filmPage = await HtmlLoader.GetFilmSourceAsync(uidFilm);
                 string name = filmPage.GetElementsByClassName("picture_image")[0].GetAttribute("title").Trim();
                 string genre = filmPage.GetElementsByClassName("filmInfo_genreItem")[0].TextContent.Trim();
                 string description = filmPage.GetElementsByClassName("tabs_contentItem js-active")[0].
                     GetElementsByTagName("p")[0].TextContent;
 
                 int filmId = await DataBaseWriter.InsertFilmAsync(name, genre, description);
-                _filmIdPairs.Add(filmId, uidFilm);
+                if (filmId == -1) continue;
+                await DataBaseWriter.InsertFilmUIdAsync(filmId, ParserSettings.SiteId, uidFilm);
+                filmIds.Add(filmId);
             }
 
-            return _filmIdPairs.Keys.ToList();
+            return filmIds;
         }
 
-        public async Task<List<int>> ParseSessions(int cinemaId, int filmId)
+        public async Task<ICollection<int>> ParseSessionsAsync(int cinemaId, int filmId)
         {
+            string uidCinema = await DataBaseReader.GetCinemaUIdAsync(cinemaId, ParserSettings.SiteId);
+            string uidFilm = await DataBaseReader.GetFilmUIdAsync(filmId, ParserSettings.SiteId);
+            IHtmlDocument sessionsPage = await HtmlLoader.GetSessionsSourceAsync(uidCinema, uidFilm);
+            if (sessionsPage == null) return new List<int>();
+            HashSet<int> sessionIds = new HashSet<int>();
 
+            var sessions = sessionsPage.GetElementsByClassName("showtimes_session").Where(
+                element =>
+                {
+                    var dataParam = element.GetAttribute("data-param");
+                    if (dataParam == null) return false;
+                    return dataParam.Contains($"\"cinemaid\":\"{uidCinema}\",\"movieid\":\"{uidFilm}\"");
+                });
+
+            foreach (var session in sessions)
+            {
+                string[] time = session.GetElementsByClassName("session_time")[0].TextContent.Split(':');
+                DateTime startTime = DateTime.Today.AddHours(Convert.ToDouble(time[0])).AddMinutes(Convert.ToDouble(time[1]));
+
+                string priceString = session.GetElementsByClassName("session_price")[0].TextContent;
+                Regex regex = new Regex("\\d+");
+                string priceValue = regex.Match(priceString).Value;
+                int price = Convert.ToInt32(priceValue);
+
+                int sessionId = await DataBaseWriter.InsertSessionAsync(cinemaId, filmId, startTime, price);
+                sessionIds.Add(sessionId);
+            }
+
+            return sessionIds;
         }
 
-        private class DataParam
+        private class DataParamCinema
         {
-            internal string type;
-            internal string uid;
+            public DataParamCinema(string type, string uid)
+            {
+                this.type = type;
+                this.uid = uid;
+            }
+            public string type { get; }
+            public string uid { get; }
+        }
+
+        private class DataParamFilm
+        {
+            public DataParamFilm(int uid, string type)
+            {
+                this.uid = uid;
+                this.type = type;
+            }
+            public int uid { get; }
+            public string type { get; }
         }
     }
 }
